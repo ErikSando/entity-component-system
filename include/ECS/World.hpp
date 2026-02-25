@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <memory>
 
 #include "ECS/ComponentManager.hpp"
@@ -46,6 +47,12 @@ class World {
         signature.set(componentManager_->getComponentType<T>(), false);
         entityManager_->setSignature(id, signature);
         systemManager_->entitySignatureChanged(id, signature);
+    }
+
+    template<typename T>
+    bool hasComponent(Entity id) {
+        Signature signature = entityManager_->getSignature(id);
+        return signature.test(componentManager_->getComponentType<T>());
     }
 
     template<typename T>

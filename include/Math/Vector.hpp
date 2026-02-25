@@ -29,19 +29,23 @@ class Vector : public vector_detail::VectorComponents<N, T> {
     constexpr Vector(TArgs&&... values) : Components(data_), data_{ static_cast<T>(std::forward<TArgs>(values))... } {}
 
     constexpr Vector(const Vector<N, T>& other) : Components(data_) {
-        for (size_t i = 0;i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             data_[i] = other[i];
         }
     }
 
     template<typename U>
     constexpr Vector(const Vector<N, U>& other) : Components(data_) {
-        for (size_t i = 0;i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             data_[i] = static_cast<T>(other[i]);
         }
     }
 
     constexpr Vector(std::initializer_list<T> list) : Components(data_) {
+        if (list.size() != N) {
+            throw new std::runtime_error("insufficient vector construction arguments.");
+        }
+
         size_t i = 0;
 
         for (const T& value : list) {
@@ -103,7 +107,8 @@ class Vector : public vector_detail::VectorComponents<N, T> {
         return true;
     }
 
-    inline bool operator!=(const Vector<N, T>& other) {
+    template<typename U>
+    inline bool operator!=(const Vector<N, U>& other) {
         return !(*this == other);
     }
 
@@ -147,7 +152,7 @@ class Vector : public vector_detail::VectorComponents<N, T> {
 
     private:
 
-    T data_[N] {};
+    T data_[N]{};
 };
 
 template<size_t N, typename T, typename U>

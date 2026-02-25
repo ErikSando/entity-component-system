@@ -4,16 +4,9 @@
 #include <cstddef>
 #include <cstdint>
 
-// using EntityID = uint32_t;
 using Entity = uint32_t;
 constexpr size_t MAX_ENTITIES = 5000;
-
-// struct Entity {
-//     EntityID id;
-
-//     template<typename T>
-//     T& getComponent();
-// };
+constexpr size_t NO_ENTITY = MAX_ENTITIES;
 
 using ComponentType = uint8_t;
 constexpr size_t MAX_COMPONENTS = 32;

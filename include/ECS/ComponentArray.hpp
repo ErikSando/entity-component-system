@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <array>
 #include <cassert>
 #include <unordered_map>
@@ -20,11 +21,10 @@ class ComponentArray : public IComponentArray {
     void insertData(Entity id, T component) {
         assert(idToIndex_.find(id) == idToIndex_.end()); // component already added
 
-        size_t index = size_;
+        size_t index = size_++;
         idToIndex_[id] = index;
         indexToId_[index] = id;
         componentArray_[index] = component;
-        size_++;
     }
 
     void removeData(Entity id) {
@@ -43,7 +43,7 @@ class ComponentArray : public IComponentArray {
     }
 
     T& getData(Entity id) {
-        assert(idToIndex_.find(id) != idToIndex_.end());
+        assert(idToIndex_.find(id) != idToIndex_.end()); // component doesn't exist
 
         return componentArray_[idToIndex_[id]];
     }
@@ -61,5 +61,5 @@ class ComponentArray : public IComponentArray {
     std::unordered_map<Entity, size_t> idToIndex_;
     std::unordered_map<size_t, Entity> indexToId_;
 
-    size_t size_;
+    size_t size_ = 0;
 };

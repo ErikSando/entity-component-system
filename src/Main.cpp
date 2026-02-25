@@ -4,6 +4,7 @@
 #include "Components/RigidBody.hpp"
 #include "Components/Transform.hpp"
 
+#include "ECS/Scene.hpp"
 #include "ECS/World.hpp"
 
 #include "Systems/PhysicsSystem.hpp"
@@ -13,10 +14,10 @@ World world;
 int main(/*int argc, char** argv*/) {
     world.init();
 
-    std::shared_ptr<PhysicsSystem> physicsSystem = world.registerSystem<PhysicsSystem>();
-
     world.registerComponent<RigidBody>();
     world.registerComponent<Transform>();
+
+    std::shared_ptr<PhysicsSystem> physicsSystem = world.registerSystem<PhysicsSystem>();
 
     Signature physicsSignature;
     physicsSignature.set(world.getComponentType<RigidBody>());
@@ -25,35 +26,72 @@ int main(/*int argc, char** argv*/) {
 
     physicsSystem->init();
 
-    RigidBody rb0;
-    Transform t0;
+    Scene scene1;
+    Scene scene2;
 
-    rb0.velocity = { 1.0f, 0.0f, 0.5f };
+    auto ebp1 = scene1.createBlueprint();
+    ebp1->addComponent(Transform(Vector3f(0.0f, 0.5f, 0.0f), Vector3f(0.0f, 0.0f, 0.2f))).addComponent(RigidBody(Vector3f(0.1f, 0.3f, 0.2f), Vector3f(0.05f, 0.0f, 0.0f)));
 
-    Entity e0 = world.createEntity();
-    world.addComponent<RigidBody>(e0, rb0); // dont need the <RigidBody> but I like explicit code
-    world.addComponent<Transform>(e0, t0);
+    auto ebp2 = scene1.createBlueprint(
+        Transform{
+            Vector3f{0.5f, 0.5f, 0.5f},
+            Vector3f{1.0f, 1.0f, 1.0f}
+        }
+    );
 
-    Transform t1;
+    auto ebp3 = scene2.createBlueprint();
+    ebp3->addComponent(Transform(Vector3f(0.0f, 0.5f, 0.0f), Vector3f(0.0f, 0.0f, 0.2f))).addComponent(RigidBody(Vector3f(0.1f, 0.3f, 0.2f), Vector3f(0.05f, 0.0f, 0.0f)));
 
-    Entity e1 = world.createEntity();
-    world.addComponent<Transform>(e1, t1);
+    auto ebp4 = scene2.createBlueprint(
+        Transform{
+            Vector3f{0.5f, 0.5f, 0.5f},
+            Vector3f{1.0f, 1.0f, 1.0f}
+        }
+    );
 
-    RigidBody& rb0r = world.getComponent<RigidBody>(e0);
-    Transform& t0r = world.getComponent<Transform>(e0);
-    Transform& t1r = world.getComponent<Transform>(e1);
+    scene1.load(world);
 
-    std::cout << rb0r.velocity << "\n";
-    std::cout << t0r.position << "\n";
-    std::cout << t1r.position << "\n";
+    std::cout << ebp1->activeEntity << "\n";
+    std::cout << ebp2->activeEntity << "\n";
+
+    std::cout << world.hasComponent<Transform>(ebp1->activeEntity) << "\n";
+    std::cout << world.hasComponent<RigidBody>(ebp1->activeEntity) << "\n";
+
+    std::cout << "Position:      " << world.getComponent<Transform>(ebp1->activeEntity).position << "\n";
+    std::cout << "Velocity:      " << world.getComponent<RigidBody>(ebp1->activeEntity).velocity << "\n";
+    std::cout << "Acceleration:  " << world.getComponent<RigidBody>(ebp1->activeEntity).acceleration << "\n";
+    std::cout << world.getComponent<Transform>(ebp2->activeEntity).position << "\n";
 
     for (int i = 0; i < 100; i++) {
         physicsSystem->update(1.0f / 60.0f);
     }
 
-    std::cout << rb0r.velocity << "\n";
-    std::cout << t0r.position << "\n";
-    std::cout << t1r.position << "\n";
+    std::cout << "Position:      " << world.getComponent<Transform>(ebp1->activeEntity).position << "\n";
+    std::cout << "Velocity:      " << world.getComponent<RigidBody>(ebp1->activeEntity).velocity << "\n";
+    std::cout << "Acceleration:  " << world.getComponent<RigidBody>(ebp1->activeEntity).acceleration << "\n";
+    std::cout << world.getComponent<Transform>(ebp2->activeEntity).position << "\n";
+
+    // scene1.unload(world);
+    scene2.load(world);
+
+    std::cout << "Position:      " << world.getComponent<Transform>(ebp3->activeEntity).position << "\n";
+    std::cout << "Velocity:      " << world.getComponent<RigidBody>(ebp3->activeEntity).velocity << "\n";
+    std::cout << "Acceleration:  " << world.getComponent<RigidBody>(ebp3->activeEntity).acceleration << "\n";
+    std::cout << world.getComponent<Transform>(ebp4->activeEntity).position << "\n";
+
+    for (int i = 0; i < 100; i++) {
+        physicsSystem->update(1.0f / 60.0f);
+    }
+
+    std::cout << "Position:      " << world.getComponent<Transform>(ebp1->activeEntity).position << "\n";
+    std::cout << "Velocity:      " << world.getComponent<RigidBody>(ebp1->activeEntity).velocity << "\n";
+    std::cout << "Acceleration:  " << world.getComponent<RigidBody>(ebp1->activeEntity).acceleration << "\n";
+    std::cout << world.getComponent<Transform>(ebp2->activeEntity).position << "\n";
+
+    std::cout << "Position:      " << world.getComponent<Transform>(ebp3->activeEntity).position << "\n";
+    std::cout << "Velocity:      " << world.getComponent<RigidBody>(ebp3->activeEntity).velocity << "\n";
+    std::cout << "Acceleration:  " << world.getComponent<RigidBody>(ebp3->activeEntity).acceleration << "\n";
+    std::cout << world.getComponent<Transform>(ebp4->activeEntity).position << "\n";
 
     return 0;
 }
